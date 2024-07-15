@@ -1,0 +1,74 @@
+@import url("https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Kanit", sans-serif;
+}
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(21, 44, 46);
+}
+/*MAP DISPLAY*/
+#map {
+  display: flex;
+  flex: 1;
+  max-width: 1700px;
+  height: 95svh;
+  margin: 15px 15px;
+  margin-left: 0;
+}
+/* RUNNING INFO*/
+.run-info {
+  display: flex;
+  flex-direction: column;
+  height: 95svh;
+  margin: 20px 0px;
+  margin-left: 10px;
+  max-width: 400px;
+  /* color: #031f0f; */
+  background-color: rgb(109, 141, 121);
+  box-shadow: 0px 0px 10px rgb(0, 0, 0);
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  flex: 1;
+}
+.title-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.row-cont {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+}
+.logo {
+  width: 60px;
+  top: 30%;
+  position: absolute;
+  left: -50px;
+}
+.title {
+  font-weight: 400;
+  color: rgb(230, 255, 241);
+  text-shadow: 0px 0px 2px black;
+  font-size: 3rem;
+}
+
+/*OVERLAY FOR STARTING*/
+/*
+.overlay-info {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  backdrop-filter: blur(6px);
+  background-color: rgba(255, 255, 255, 0.041);
+  filter: blur(2px);
+  z-index: 100;
+}
+*/
