@@ -31,7 +31,16 @@ let runs = JSON.parse(localStorage.getItem("runDave2024")) || [];
 runs = runs.map((run) => Object.assign(Object.create(Run.prototype), run));
 
 let tutorial = runs.length > 0 ? false : true;
-let map, clicked, okBttn, inputMin, submitCont, marker, popup;
+let map,
+  clicked,
+  okBttn,
+  inputMin,
+  submitCont,
+  marker,
+  marker1,
+  popup,
+  popup1,
+  line;
 let numOfRuns = runs.length;
 let allSavedCoords = [];
 
@@ -118,7 +127,7 @@ function createRun() {
 
   if (coords.length > 1) {
     calculateDistance();
-    addLine(coords, numOfRuns);
+    line = addLine(coords, numOfRuns);
     popup = addPopUp(
       coords[coords.length - 1],
       generatePopUpHTML("finish", numOfRuns, true, distance),
@@ -159,7 +168,10 @@ function addRun() {
 
   marker.remove();
   popup.remove();
-
+  // line.remove();
+  // allSavedCoords = [];
+  // displayAllSavedRuns();
+  console.log(allSavedCoords);
   addPopUp(
     coords[coords.length - 1],
     generatePopUpHTML("finish", numOfRuns, false, distance)
@@ -214,36 +226,48 @@ if (tutorial) {
   overlay.init();
   overlay.add();
 }
-function displayAllSavedRuns() {
-  if (runs.length > 0) {
-    runs.forEach((run) => {
-      run.generateHTML(document.querySelector(".run-info2"));
-      const markerStart = addMarker(run.coords[0], "start");
-      const markerFinish = addMarker(
-        run.coords[run.coords.length - 1],
-        "finish"
-      );
-      const popupStart = addPopUp(
-        run.coords[0],
-        generatePopUpHTML(undefined, +run.id)
-      );
-      const popupFinish = addPopUp(
-        run.coords[run.coords.length - 1],
-        generatePopUpHTML("finish", +run.id, false, run.distance)
-      );
-      const line = addLine(run.coords, run.id);
-      allSavedCoords.push({
-        markerStart,
-        markerFinish,
-        popupStart,
-        popupFinish,
-        line,
-      });
+
+function generateAll(runs) {
+  runs.forEach((run) => {
+    run.generateHTML(document.querySelector(".run-info2"));
+    const markerStart = addMarker(run.coords[0], "start");
+    const markerFinish = addMarker(run.coords[run.coords.length - 1], "finish");
+    const popupStart = addPopUp(
+      run.coords[0],
+      generatePopUpHTML(undefined, +run.id)
+    );
+    const popupFinish = addPopUp(
+      run.coords[run.coords.length - 1],
+      generatePopUpHTML("finish", +run.id, false, run.distance)
+    );
+    const line = addLine(run.coords, run.id);
+    allSavedCoords.push({
+      markerStart,
+      markerFinish,
+      popupStart,
+      popupFinish,
+      line,
+      id: run.id,
     });
+  });
+}
+function displayAllSavedRuns() {
+  allSavedCoords = [];
+  if (runs.length > 0) {
+    generateAll(runs);
   }
 }
 
-function displayOneRun() {}
+function displayDeleteAllDrawings() {
+  allSavedCoords.forEach((crd) => {
+    crd.markerStart.remove();
+    crd.markerFinish.remove();
+    crd.popupStart.remove();
+    crd.popupFinish.remove();
+    crd.line.remove();
+  });
+  allSavedCoords = [];
+}
 // clearLocalStorage();
 
 overlay.initBurger();
@@ -253,7 +277,10 @@ const containerStats = document.querySelector(".run-info2");
 containerStats.addEventListener("click", (e) => {
   const runStat = e.target.closest(".run-stats");
   if (!runStat) return;
-  const findRun = runs.find((run) => +run.id === +runStat.dataset.runId);
-  console.log(findRun);
-  console.log(runStat);
+  const run = [runs.find((run) => +run.id === +runStat.dataset.runId)];
+  displayDeleteAllDrawings();
+  generateAll(run);
+  const line = allSavedCoords.find((run) => +run.id === +runStat.dataset.runId);
+
+  map.flyTo([line.markerStart._latlng.lat, line.markerStart._latlng.lng], 15);
 });
