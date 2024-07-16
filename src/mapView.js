@@ -3,9 +3,6 @@ import { ZOOM_LEVEL } from "./config.js";
 const mapDiv = document.querySelector("#map");
 
 let map;
-let coords = [];
-let cord = 1;
-let distance = 0;
 
 export function generateMap(crd) {
   map = L.map(mapDiv).setView(crd, ZOOM_LEVEL);

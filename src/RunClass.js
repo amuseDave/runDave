@@ -1,10 +1,11 @@
 export default class Run {
-  constructor(date, location, time, coords, distance) {
-    this.location = location;
+  constructor(date, time, coords, distance, color) {
     this.date = date;
-    time.time = time;
-    this.distance;
-    this.speed;
+    this.time = time;
+    this.distance = distance;
     this.coords = coords;
+    this.color = color;
+    this.speed;
+    this.location;
   }
 }
