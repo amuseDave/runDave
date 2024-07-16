@@ -25,7 +25,11 @@ export class Run {
     return formattedDate;
   }
   generateHTML(el) {
-    const runHTML = `  <div data-run-id="${this.id}" class="run-stats">
+    const runHTML = `  <div data-run-id="${
+      this.id
+    }" class="run-stats run-stat-${this.id}" style=' box-shadow: 0px 0px 10px ${
+      this.color
+    }; ${this.color}'>
         <div class="stat-row">
           <div class="stat">
             <h4>📅 Date:</h4>
@@ -56,6 +60,17 @@ export class Run {
         </div>
       </div>`;
     el.insertAdjacentHTML("beforeend", runHTML);
+    setTimeout(() => {
+      document.querySelector(`.run-stat-${this.id}`).style.opacity = "1";
+    }, 1);
+    setTimeout(() => {
+      document.querySelector(`.run-stat-${this.id}`).style.transform =
+        "scale(1.05)";
+    }, 250);
+    setTimeout(() => {
+      document.querySelector(`.run-stat-${this.id}`).style.transform =
+        "scale(1)";
+    }, 600);
   }
   getFriendlyDateDifference() {
     const now = new Date();

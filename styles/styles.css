@@ -229,6 +229,7 @@ input[type="number"] {
 }
 
 .run-stats {
+  opacity: 0;
   background-color: #a6e7c3;
   border: 2px solid black;
   border-radius: 8px;
@@ -238,7 +239,8 @@ input[type="number"] {
   margin: 10px auto;
   font-family: "Arial", sans-serif;
   font-size: 16px;
-  transition: 1s all ease-in-out;
+  transition: 0.2s all ease-in-out !important;
+  cursor: pointer;
 }
 
 .run-stats .stat-row {
@@ -271,5 +273,43 @@ input[type="number"] {
 .run-stats p {
   margin: 0;
   font-size: 16px;
-  color: #555;
+  color: #292929;
+}
+.burger-bttn,
+.burger-bttn-close {
+  display: none;
+  z-index: 1000;
+  position: absolute;
+  top: 40px;
+  right: 20px;
+  cursor: pointer;
+}
+
+@media (max-width: 1000px) {
+  .run-info {
+    position: absolute;
+    z-index: 800;
+    width: 400px !important;
+    right: 10px;
+    opacity: 0;
+    display: none;
+    transition: all 0.3s ease-in-out;
+  }
+  #map {
+    margin: 10px;
+  }
+  .visible {
+    display: flex;
+  }
+  .burger-bttn,
+  .burger-bttn-close {
+    opacity: 0;
+    display: block;
+    transition: 0.3s ease-in-out all;
+  }
+
+  .opacity {
+    opacity: 1;
+    transition: all 0.3s ease-in-out;
+  }
 }
