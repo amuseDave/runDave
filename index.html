@@ -24,21 +24,32 @@
     <script defer type="module" src="./src/control.js"></script>
   </head>
   <body>
-    <div class="overlay-info"></div>
-    <div class="info">
-      <p>Select Starting Point: Click on the map to set your starting point.</p>
+    <div class="overlay-info hidden"></div>
+    <div class="info hidden">
+      <h3>Tutorial</h3>
       <p>
-        Draw Your Route: Create your running route by clicking on the map to add
-        points.
+        <strong>1. Select Starting Point:</strong> Click on the map to set your
+        starting point.
       </p>
       <p>
-        Submit Your Route: Click "OK" when you have completed drawing your
-        route.
+        <strong>2. Draw Your Route:</strong> Create your running route by
+        clicking on the map to add points.
       </p>
-      <p>Enter Run Duration: Input the time it took to complete the run.</p>
+      <p>
+        <strong>3. Submit Your Route:</strong> Click "OK" when you have
+        completed drawing your route.
+      </p>
+      <p>
+        <strong>4. Enter Run Duration:</strong> Input the time it took to
+        complete the run.
+      </p>
       <p class="last">
-        Save Your Run: Click "OK" again, and voila! Your run is saved.
+        <strong>5. Save Your Run:</strong> Click "OK" again, and voila! Your run
+        is saved.
       </p>
+      <div class="close-tutorial">
+        <i class="fa-solid fa-xmark fa-2x" style="color: #e9f1eb"></i>
+      </div>
     </div>
     <div class="run-info">
       <div class="title-container">
@@ -50,7 +61,7 @@
           <h2 class="title">runDave</h2>
         </div>
       </div>
-      <div class="run"></div>
+      <div class="run-info2"></div>
     </div>
     <div id="map"></div>
   </body>

@@ -19,8 +19,3 @@ export function displayMap() {
   //     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   // }).addTo(map);
 }
-export function addMapClickEvent(method) {
-  map.on("click", function (ev) {
-    method(ev);
-  });
-}

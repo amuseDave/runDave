@@ -1,42 +1,10 @@
 import * as mapFunctions from "./mapView.js";
-import Run from "./RunClass.js";
-
-let coords = [];
-let distance = 0;
-let currentCord = 0;
-let runs = JSON.parse(localStorage.getItem("runDave2024")) || [];
-console.log(runs);
-let map, clicked, okBttn, inputMin, popup, marker;
-let numOfRuns = runs.length;
-
-var myIcon = L.icon({
-  iconUrl: "../images/running.svg",
-  iconSize: [38, 95],
-  iconAnchor: [30, 40],
-  popupAnchor: [0, 0],
-});
-
-function displayRuns() {
-  runs.forEach((run) => {
-    addPopUp(run.coords[0], "🚩Start", undefined, undefined, run.id);
-    addPopUp(
-      run.coords[run.coords.length - 1],
-      `🏁Finish`,
-      false,
-      `<p ${generateStyle(run.id)} class="text-tool-tip current-distance">🛣️ ${
-        run.distance
-      }km</p>`,
-      run.id
-    );
-    addMarker(run.coords[0]);
-    L.polyline(run.coords, { color: generateColor(+run.id) }).addTo(map);
-  });
-}
-// localStorage.clear("runDave2024");
+import * as overlay from "./overlay.js";
+import { Run } from "./RunClass.js";
 
 const colorPalette = [
   "#1E90FF", // Dodger Blue
-  "#000000", // Black
+  "#283c41", // Black
   "#32CD32", // Lime Green
   "#FFD700", // Gold
   "#FF4500", // Orange Red
@@ -56,87 +24,113 @@ const colorPalette = [
   "#808080", // Gray
 ];
 
-function generateColor(id) {
-  return colorPalette[id % colorPalette.length];
+let coords = [];
+let distance = 0;
+let currentCord = 0;
+let runs = JSON.parse(localStorage.getItem("runDave2024")) || [];
+runs = runs.map((run) => Object.assign(Object.create(Run.prototype), run));
+
+let tutorial = runs.length > 0 ? false : true;
+let map, clicked, okBttn, inputMin, submitCont, marker, popup;
+let numOfRuns = runs.length;
+
+function createIcon(state) {
+  return L.icon({
+    iconUrl:
+      state === "start"
+        ? "../images/start-run.svg"
+        : "../images/finish-run.svg",
+    iconSize: [38, 95],
+    iconAnchor: [30, 40],
+    popupAnchor: [0, 0],
+  });
 }
-function generateStyle(id) {
-  return `style="text-shadow: 0px 0px 5px ${generateColor(id)}"`;
+
+function clearLocalStorage() {
+  localStorage.clear("runDave2024");
 }
-function addLines(ev) {
-  coords.push([ev.latlng.lat, ev.latlng.lng]);
-  addMarker(coords[0]);
-  coords.length === 1
-    ? addPopUp(coords[0], "🚩Start", undefined, undefined, numOfRuns)
-    : null;
-  L.polyline(coords, { color: generateColor(numOfRuns) }).addTo(map);
-  if (coords.length >= 2) {
-    if (okBttn) okBttn.remove();
-    if (inputMin) inputMin.remove();
-    clicked = false;
+function setLocalStorage() {
+  localStorage.setItem("runDave2024", JSON.stringify(runs));
+}
+
+// Click on any map points
+// genera
+function activateSubmit() {
+  if (+inputMin.value < 10) {
+    alert("Minimum running time is > 10");
+    return;
+  }
+  addRun();
+}
+function renderSubmit() {
+  if (okBttn && inputMin) {
+    okBttn.remove();
+    inputMin.remove();
+    submitCont.remove();
+  }
+  okBttn = document.querySelector(".ok");
+  inputMin = document.querySelector(".submit input");
+  submitCont = document.querySelector(".submit");
+  okBttn.addEventListener("click", () => {
+    if (clicked) {
+      activateSubmit();
+    }
+    clicked = true;
+    inputMin.classList.remove("hidden");
+    submitCont.style.transform = `translateX(60%)`;
+  });
+}
+
+function resetLines() {
+  coords = [];
+  distance = 0;
+  currentCord = 0;
+  numOfRuns++;
+  setLocalStorage();
+}
+
+function generatePopUpHTML(
+  line = "start",
+  id,
+  generateSubmit = true,
+  distance
+) {
+  let markupHTML = `<p ${generateStyle(id)} ><span class="run">#${
+    id + 1
+  }</span>${line === "start" ? `🚩Start🚩` : `🏁Finish!🏁`}</p>`;
+  line !== "start"
+    ? (markupHTML += `<p ${generateStyle(
+        numOfRuns
+      )} class="text-tool-tip current-distance">🛣️ ${distance}km</p>`)
+    : "";
+  if (generateSubmit && line !== "start") {
+    markupHTML += `<div class="submit"><input class="hidden" type="number" placeholder="Minutes"> <button class="ok"> Ok </button></div>`;
+  }
+  return markupHTML;
+}
+
+function createRun() {
+  if (coords.length === 1) {
+    addPopUp(coords[0], generatePopUpHTML(undefined, numOfRuns));
+    addMarker(coords[0], "start");
+  }
+
+  if (coords.length > 1) {
     calculateDistance();
+    addLine(coords, numOfRuns);
     popup = addPopUp(
       coords[coords.length - 1],
-      `🏁Finish`,
-      true,
-      generateToolTipText(),
-      numOfRuns
+      generatePopUpHTML("finish", numOfRuns, true, distance),
+      true
     );
-    okBttn = document.querySelector(".ok");
-    okBttn.addEventListener("click", () => {
-      if (clicked) {
-        console.log("work");
-        if (+inputMin.value < 10) {
-          alert("Run has to be more than 10 mimnutes");
-          return;
-        }
-        popup.remove();
-
-        runs.push(
-          new Run(
-            new Date(),
-            inputMin.value,
-            coords,
-            +distance,
-            generateColor(),
-            numOfRuns
-          )
-        );
-        addPopUp(
-          coords[coords.length - 1],
-          `🏁Finish`,
-          false,
-          `<p ${generateStyle(
-            numOfRuns
-          )} class="text-tool-tip current-distance">🛣️ ${distance}km</p>`,
-          numOfRuns
-        );
-        coords = [];
-        distance = 0;
-        currentCord = 0;
-        numOfRuns++;
-        localStorage.setItem("runDave2024", JSON.stringify(runs));
-        return;
-      }
-      document.querySelector(".submit").style.transform = "translateX(70px)";
-      inputMin = document.querySelector(".submit input");
-      inputMin.classList.remove("hidden");
-      clicked = true;
-    });
+    if (marker) marker.remove();
+    marker = addMarker(coords[coords.length - 1], "finish");
+    clicked = false;
+    renderSubmit();
   }
 }
 
-function generateToolTipText() {
-  return `<p ${generateStyle(
-    numOfRuns
-  )} class="text-tool-tip current-distance">🛣️ ${distance}km</p> <div class="submit"><input class="hidden" type="number" placeholder="Minutes"> <button class="ok"> Ok </button></div>`;
-}
-
-function addMarker(crd) {
-  return L.marker(crd, {
-    icon: myIcon,
-  }).addTo(map);
-}
-function addPopUp(crd, content = "", close = false, content2 = "", id) {
+function addPopUp(crd, content = "", close = false) {
   return L.popup(crd, {
     minWidth: 60,
     maxWidth: 110,
@@ -147,30 +141,31 @@ function addPopUp(crd, content = "", close = false, content2 = "", id) {
     closeButton: false,
     closeOnEscapeKey: false,
     close: false,
-    content: `<p ${generateStyle(id)} ><span class="run">#${
-      id + 1
-    }</span>${content}<br />${content2}</p>`,
-    // content: `<p class="text-tool-tip">${content}</p> ${content2}`,
+    content: `${content}`,
   }).openOn(map);
 }
+function addRun() {
+  runs.push(
+    new Run(
+      new Date(),
+      +inputMin.value,
+      coords,
+      +distance,
+      generateColor(numOfRuns),
+      numOfRuns
+    )
+  );
 
-///////////////////////////////////////
-////// SETUP COMPLETE ////////////
-//////////////////////////////////////
-navigator.geolocation.getCurrentPosition(
-  (position) =>
-    mapInitialization([position.coords.latitude, position.coords.longitude]),
-  () => mapInitialization([51.505, -0.09])
-);
-function mapInitialization(coords) {
-  map = mapFunctions.generateMap(coords);
-  mapFunctions.displayMap();
-  mapFunctions.addMapClickEvent(addLines);
-  displayRuns();
+  marker.remove();
+  popup.remove();
+
+  addPopUp(
+    coords[coords.length - 1],
+    generatePopUpHTML("finish", numOfRuns, false, distance)
+  );
+  addMarker(coords[coords.length - 1], "finish");
+  resetLines();
 }
-/**
- * Calculates distance of line cordinates
- */
 function calculateDistance() {
   const latlng1 = L.latLng(coords[currentCord]);
   const latlng2 = L.latLng(coords[currentCord + 1]);
@@ -178,28 +173,58 @@ function calculateDistance() {
   distance += Math.round(latlng1.distanceTo(latlng2)) / 1000;
   distance = +distance.toFixed(2);
 }
+function addMarker(crd, state) {
+  return L.marker(crd, {
+    icon: createIcon(state),
+  }).addTo(map);
+}
+function addLine(coords, id) {
+  L.polyline(coords, { color: generateColor(id) }).addTo(map);
+}
+function generateStyle(id) {
+  return `style="text-shadow: 0px 0px 5px ${generateColor(id)}"`;
+}
+function generateColor(id) {
+  return colorPalette[id % colorPalette.length];
+}
+
+///////////////////////////////////////
+////// MAP SETUP ////////////
+//////////////////////////////////////
+navigator.geolocation.getCurrentPosition(
+  (position) =>
+    mapInitialization([position.coords.latitude, position.coords.longitude]),
+  () => mapInitialization([51.505, -0.09])
+);
+function mapInitialization(startCoord) {
+  map = mapFunctions.generateMap(startCoord);
+  mapFunctions.displayMap();
+  renderSavedRuns();
+  map.on("click", function (ev) {
+    coords.push([ev.latlng.lat, ev.latlng.lng]);
+    createRun();
+  });
+}
 
 /*OVERLAY**/
-const overlay = document.querySelector(".overlay-info");
-const overlayCont = document.querySelector(".info");
 
-function overlayRemove() {
-  overlay.classList.remove("hidden");
-  overlayCont.classList.remove("hidden");
+if (tutorial) {
+  overlay.init();
+  overlay.add();
 }
-
-function overlayAdd() {
-  overlay.classList.add("hidden");
-  overlayCont.classList.add("hidden");
-  console.log(overlayCont);
+function renderSavedRuns() {
+  if (runs.length > 0) {
+    runs.forEach((run) => {
+      run.generateHTML(document.querySelector(".run-info2"));
+      addMarker(run.coords[0], "start");
+      addMarker(run.coords[run.coords.length - 1], "finish");
+      addPopUp(
+        run.coords[run.coords.length - 1],
+        generatePopUpHTML("finish", +run.id, false, run.distance)
+      );
+      addPopUp(run.coords[0], generatePopUpHTML(undefined, +run.id));
+      addLine(run.coords, run.id);
+    });
+  }
 }
-
-overlay.addEventListener("click", () => {
-  overlay.style.opacity = "0";
-  overlayCont.style.opacity = "0";
-  setTimeout(() => {
-    overlayAdd();
-  }, 1000);
-});
-
-overlayRemove();
+clearLocalStorage();
