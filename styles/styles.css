@@ -83,7 +83,8 @@ p {
   transform: translateY(-50%);
 }
 .hidden {
-  display: none;
+  transition: 0.5s all ease-in-out !important;
+  display: none !important;
 }
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
@@ -135,7 +136,7 @@ input[type="number"] {
 }
 
 /*OVERLAY FOR STARTING*/
-/*
+
 .overlay-info {
   position: absolute;
   left: 0;
@@ -145,34 +146,33 @@ input[type="number"] {
   backdrop-filter: blur(6px);
   background-color: rgba(255, 255, 255, 0.041);
   filter: blur(2px);
-  z-index: 100;
+  z-index: 500;
+  transition: 0.5s all ease-in-out !important;
 }
-*/
 
-.run0 {
-  color: rgb(255, 255, 255);
+.info {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  background-color: rgba(15, 27, 26, 0.897);
+  position: absolute;
+  width: 320px;
+  color: white;
+  height: 320px;
+  top: 50%;
+  left: 50%;
+  z-index: 600;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+  transition: 0.5s all ease-in-out !important;
 }
-.run1 {
-  color: rgb(235, 253, 233);
+.info p {
+  margin-bottom: 10px !important;
+  text-align: center;
+  border-bottom: 2px solid black;
 }
-.run2 {
-  color: rgb(216, 255, 210);
-}
-.run3 {
-  color: rgb(196, 255, 189);
-}
-.run4 {
-  color: rgb(176, 255, 166);
-}
-.run5 {
-  color: rgb(156, 255, 143);
-}
-.run6 {
-  color: rgb(146, 255, 132);
-}
-.run7 {
-  color: rgb(125, 250, 108);
-}
-.run8 {
-  color: rgb(107, 255, 88);
+
+.last {
+  margin: 0px !important;
+  border: 0px !important;
 }
