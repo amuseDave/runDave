@@ -1,7 +1,12 @@
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 import * as mapFunctions from "./mapView.js";
 import * as overlay from "./overlay.js";
 import { Run } from "./RunClass.js";
 import * as API from "./API.js";
+import startRunImage from "../images/start-run.svg";
+import finishRunImage from "../images/finish-run.svg";
+
 const mainCont = document.querySelector(".run-info");
 const burgerBtnOpen = document.querySelector(".burger-bttn");
 const burgerBtnClose = document.querySelector(".burger-bttn-close");
@@ -50,10 +55,7 @@ let allSavedCoords = [];
 
 function createIcon(state) {
   return L.icon({
-    iconUrl:
-      state === "start"
-        ? "../images/start-run.svg"
-        : "../images/finish-run.svg",
+    iconUrl: state === "start" ? startRunImage : finishRunImage,
     iconSize: [38, 95],
     iconAnchor: [30, 40],
     popupAnchor: [0, 0],

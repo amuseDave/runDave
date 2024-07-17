@@ -2,11 +2,16 @@
   "name": "rundave",
   "version": "1.0.0",
   "description": "Display personal running workouts with amazing features",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "parcel index.html",
+    "build": "parcel build index.html --dist-dir ./dist"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "core-js": "^3.37.1",
+    "parcel": "^2.12.0",
+    "regenerator-runtime": "^0.14.1"
+  }
 }
