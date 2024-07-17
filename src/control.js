@@ -43,7 +43,8 @@ let map,
   marker1,
   popup,
   popup1,
-  lineD;
+  lineD,
+  loading;
 let numOfRuns = +runs.at(-1)?.id + 1 || runs.length;
 let allSavedCoords = [];
 
@@ -121,6 +122,7 @@ function generatePopUpHTML(
 }
 
 function createRun() {
+  if (loading) return;
   if (coords.length === 1) {
     closeBurger();
     popup1 = addPopUp(coords[0], generatePopUpHTML(undefined, numOfRuns));
@@ -128,6 +130,7 @@ function createRun() {
   }
 
   if (coords.length > 1) {
+    closeBurger();
     calculateDistance();
     if (lineD) {
       lineD.remove();
@@ -174,13 +177,27 @@ function removeCurrentPopsMarks() {
 }
 
 async function addRun() {
+  removeCurrentPopsMarks();
+  const popupStart = addPopUp(
+    coords[0],
+    generatePopUpHTML(undefined, numOfRuns)
+  );
+  const markerStart = addMarker(coords[0], "start");
+  const popupFinish = addPopUp(
+    coords[coords.length - 1],
+    generatePopUpHTML("finish", numOfRuns, false, distance)
+  );
+  const markerFinish = addMarker(coords[coords.length - 1], "finish");
+  const line = addLine(coords, numOfRuns);
+  openBurger2();
+  loading = true;
+
   const weather = await API.getWeather(coords);
   const location = await Promise.race([
     API.getLocatioName(coords),
     API.errorLoc(),
   ]);
-  console.log(location);
-  console.log(weather);
+
   runs.push(
     new Run(
       new Date(),
@@ -194,20 +211,6 @@ async function addRun() {
     )
   );
 
-  removeCurrentPopsMarks();
-
-  const popupStart = addPopUp(
-    coords[0],
-    generatePopUpHTML(undefined, numOfRuns)
-  );
-  const markerStart = addMarker(coords[0], "start");
-  const popupFinish = addPopUp(
-    coords[coords.length - 1],
-    generatePopUpHTML("finish", numOfRuns, false, distance)
-  );
-  const markerFinish = addMarker(coords[coords.length - 1], "finish");
-  const line = addLine(coords, numOfRuns);
-
   allSavedCoords.push({
     markerStart,
     markerFinish,
@@ -219,7 +222,13 @@ async function addRun() {
 
   numOfRuns = +runs.at(-1).id + 1;
   setLocalStorage();
-  openBurger();
+  resetLines();
+
+  document
+    .querySelector(`.run-stat-${numOfRuns - 1}`)
+    .scrollIntoView({ behavior: "smooth" });
+
+  loading = false;
 }
 function calculateDistance() {
   const latlng1 = L.latLng(coords[currentCord]);
@@ -256,6 +265,7 @@ function mapInitialization(startCoord) {
   mapFunctions.displayMap();
   displayAllSavedRuns();
   map.on("click", function (ev) {
+    if (loading) return;
     coords.push([ev.latlng.lat, ev.latlng.lng]);
     createRun();
   });
@@ -272,9 +282,9 @@ function generateRunHTML(runs) {
     run.generateHTML(document.querySelector(".run-info2"));
   });
 }
-function saveCordinates() {}
 
 function generateRunMarkers(runs) {
+  if (runs.length === 0) return;
   allSavedCoords = [];
   runs.forEach((run) => {
     const markerStart = addMarker(run.coords[0], "start");
@@ -321,11 +331,44 @@ initBurger();
 
 const containerStats = document.querySelector(".run-info2");
 
+function deleteRun(delBttn) {
+  if (loading) return;
+  const id = +delBttn.dataset.delId;
+  const runIndex = runs.findIndex((run) => +run.id === id);
+  const savedCoordsIndex = allSavedCoords.findIndex((crd) => +crd.id === id);
+
+  if (savedCoordsIndex !== -1) {
+    allSavedCoords[savedCoordsIndex].markerStart.remove();
+    allSavedCoords[savedCoordsIndex].markerFinish.remove();
+    allSavedCoords[savedCoordsIndex].popupStart.remove();
+    allSavedCoords[savedCoordsIndex].popupFinish.remove();
+    allSavedCoords[savedCoordsIndex].line.remove();
+    allSavedCoords.splice(savedCoordsIndex, 1);
+  }
+  runs.splice(runIndex, 1);
+  document.querySelector(`.run-stat-${id}`).remove();
+  numOfRuns = +runs.at(-1)?.id + 1 || runs.length;
+  setLocalStorage();
+  displayDeleteAllDrawings();
+  generateRunMarkers(runs);
+}
+
 containerStats.addEventListener("click", (e) => {
-  removeCurrentPopsMarks();
-  resetLines();
+  const delBttn = e.target.closest(".del-bttn");
+  if (delBttn) {
+    deleteRun(delBttn);
+    return;
+  }
+
   const runStat = e.target.closest(".run-stats");
   if (!runStat) return;
+  goToRun(runStat);
+});
+
+function goToRun(runStat) {
+  if (loading) return;
+  removeCurrentPopsMarks();
+  resetLines();
   const run = [runs.find((run) => +run.id === +runStat.dataset.runId)];
   displayDeleteAllDrawings();
   generateRunMarkers(run);
@@ -335,14 +378,12 @@ containerStats.addEventListener("click", (e) => {
     [line.markerStart._latlng.lat, line.markerStart._latlng.lng],
     +run[0].distance > 5 ? 13 : 14
   );
-});
-clearLocalStorage();
-
-function goToRun(runStat) {}
+}
 
 /*BURGER MENU*/
 
-export function closeBurger() {
+function closeBurger() {
+  if (loading) return;
   mainCont.classList.remove("opacity");
   burgerBtnOpen.classList.remove("hidden");
   burgerBtnClose.classList.remove("opacity");
@@ -354,9 +395,13 @@ export function closeBurger() {
     mainCont.classList.remove("visible");
   }, 300);
 }
-export function openBurger() {
+function openBurger() {
   removeCurrentPopsMarks();
   resetLines();
+  openBurger2();
+}
+
+function openBurger2() {
   mainCont.classList.add("visible"); // cont add vis
   burgerBtnOpen.classList.remove("opacity"); // remove opacity
   burgerBtnClose.classList.remove("hidden");
@@ -366,8 +411,7 @@ export function openBurger() {
     burgerBtnOpen.classList.add("hidden"); // display none
   }, 40);
 }
-
-export function initBurger() {
+function initBurger() {
   closeBurger();
   burgerBtnOpen.addEventListener("click", openBurger);
   burgerBtnClose.addEventListener("click", closeBurger);

@@ -239,7 +239,7 @@ input[type="number"] {
   margin: 10px auto;
   font-family: "Arial", sans-serif;
   font-size: 16px;
-  transition: 0.2s all ease-in-out !important;
+  transition: 0.3s all ease-in-out !important;
   cursor: pointer;
   padding-top: 25px;
 }

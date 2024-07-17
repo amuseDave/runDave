@@ -1,7 +1,5 @@
 const mainCont = document.querySelector(".run-info2");
 export async function getWeather(crd) {
-  console.log("loading");
-
   const res = await fetch(
     `https://api.open-meteo.com/v1/forecast?latitude=${crd[0][0]}&longitude=${crd[0][1]}&current_weather=true`
   );
@@ -55,25 +53,38 @@ export async function getWeather(crd) {
   return { temperature, weatherDescription };
 }
 export function errorLoc() {
+  let loading = document.querySelector(".loading");
+  loading.scrollIntoView({ behavior: "smooth" });
   return new Promise((resolve) => {
     setTimeout(() => {
+      if (loading) loading.remove();
       resolve(`❗Couldn't get running location`);
-      document.querySelector(".loading").remove();
-    }, 3000);
+    }, 2000);
   });
 }
 
 export async function getLocatioName(crd) {
-  console.log("loading");
   mainCont.insertAdjacentHTML(
     "beforeend",
     `<div class="loading"> <i class="fa-solid fa-spinner fa-3x spinner" style="color: #e6fff1;"></i> </div>`
   );
+  let loading = document.querySelector(".loading");
+  loading.scrollIntoView({ behavior: "smooth", block: "end" });
+
+  // return new Promise((resolve) => {
+  //   setTimeout(() => {
+  //     if (loading) loading.remove();
+  //     resolve(`❗Couldn't get running location`);
+  //   }, 3000);
+  // });
+
   const res = await fetch(
     `https://nominatim.openstreetmap.org/reverse?format=json&lat=${crd[0][0]}&lon=${crd[0][1]}`
   );
   const data = await res.json();
-  document.querySelector(".loading").remove();
-  const loc = `${data.address.country} ${data.address.city} ${data.address.suburb}`;
+  loading.remove();
+  const loc = `${data.address.country} ${data.address.city || ""} ${
+    data.address.suburb || ""
+  }`;
   return loc;
 }
