@@ -1,7 +1,7 @@
 export class Run {
   constructor(date, time, coords, distance, color, id, weather, location) {
     this.dateMS = date.getTime();
-    this.time = time;
+    this.time = `${+time} Minutes`;
     this.distance = distance;
     this.coords = coords;
     this.color = color;
@@ -31,6 +31,9 @@ export class Run {
     }" class="run-stats run-stat-${this.id}" style='box-shadow: 0px 0px 10px ${
       this.color
     };'>
+    <div data-del-id="${
+      this.id
+    }" class=del-bttn><i class="fa-solid fa-xmark fa-xl" style="color: #ff0000"></i></div>
         <div class="stat-row">
           <div class="stat">
             <h4>📅 Date:</h4>

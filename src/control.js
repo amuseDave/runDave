@@ -2,7 +2,9 @@ import * as mapFunctions from "./mapView.js";
 import * as overlay from "./overlay.js";
 import { Run } from "./RunClass.js";
 import * as API from "./API.js";
-
+const mainCont = document.querySelector(".run-info");
+const burgerBtnOpen = document.querySelector(".burger-bttn");
+const burgerBtnClose = document.querySelector(".burger-bttn-close");
 const colorPalette = [
   "#1E90FF", // Dodger Blue
   "#283c41", // Black
@@ -120,13 +122,16 @@ function generatePopUpHTML(
 
 function createRun() {
   if (coords.length === 1) {
-    overlay.closeBurger();
+    closeBurger();
     popup1 = addPopUp(coords[0], generatePopUpHTML(undefined, numOfRuns));
     marker1 = addMarker(coords[0], "start");
   }
 
   if (coords.length > 1) {
     calculateDistance();
+    if (lineD) {
+      lineD.remove();
+    }
     lineD = addLine(coords, numOfRuns);
     popup = addPopUp(
       coords[coords.length - 1],
@@ -154,11 +159,27 @@ function addPopUp(crd, content = "", close = false) {
     content: `${content}`,
   }).openOn(map);
 }
+function removeCurrentPopsMarks() {
+  if (marker && popup) {
+    marker.remove();
+    popup.remove();
+  }
+  if (popup1 && marker1) {
+    marker1.remove();
+    popup1.remove();
+  }
+  if (lineD) {
+    lineD.remove();
+  }
+}
 
 async function addRun() {
   const weather = await API.getWeather(coords);
-  // const location = await API.getLocatioName(coords);
-  // console.log(weather);
+  const location = await Promise.race([
+    API.getLocatioName(coords),
+    API.errorLoc(),
+  ]);
+  console.log(location);
   console.log(weather);
   runs.push(
     new Run(
@@ -173,11 +194,7 @@ async function addRun() {
     )
   );
 
-  marker.remove();
-  popup.remove();
-  marker1.remove();
-  popup1.remove();
-  lineD.remove();
+  removeCurrentPopsMarks();
 
   const popupStart = addPopUp(
     coords[0],
@@ -200,10 +217,9 @@ async function addRun() {
     id: +numOfRuns,
   });
 
-  resetLines();
   numOfRuns = +runs.at(-1).id + 1;
   setLocalStorage();
-  overlay.openBurger();
+  openBurger();
 }
 function calculateDistance() {
   const latlng1 = L.latLng(coords[currentCord]);
@@ -301,21 +317,58 @@ function displayDeleteAllDrawings() {
 }
 // clearLocalStorage();
 // FIX Displaying one run
-overlay.initBurger();
+initBurger();
 
 const containerStats = document.querySelector(".run-info2");
 
 containerStats.addEventListener("click", (e) => {
+  removeCurrentPopsMarks();
+  resetLines();
   const runStat = e.target.closest(".run-stats");
   if (!runStat) return;
   const run = [runs.find((run) => +run.id === +runStat.dataset.runId)];
   displayDeleteAllDrawings();
   generateRunMarkers(run);
   const line = allSavedCoords.find((run) => +run.id === +runStat.dataset.runId);
-  overlay.closeBurger();
+  closeBurger();
   map.flyTo(
     [line.markerStart._latlng.lat, line.markerStart._latlng.lng],
     +run[0].distance > 5 ? 13 : 14
   );
 });
 clearLocalStorage();
+
+function goToRun(runStat) {}
+
+/*BURGER MENU*/
+
+export function closeBurger() {
+  mainCont.classList.remove("opacity");
+  burgerBtnOpen.classList.remove("hidden");
+  burgerBtnClose.classList.remove("opacity");
+  setTimeout(() => {
+    burgerBtnOpen.classList.add("opacity");
+    burgerBtnClose.classList.add("hidden");
+  }, 40);
+  setTimeout(() => {
+    mainCont.classList.remove("visible");
+  }, 300);
+}
+export function openBurger() {
+  removeCurrentPopsMarks();
+  resetLines();
+  mainCont.classList.add("visible"); // cont add vis
+  burgerBtnOpen.classList.remove("opacity"); // remove opacity
+  burgerBtnClose.classList.remove("hidden");
+  setTimeout(() => {
+    burgerBtnClose.classList.add("opacity");
+    mainCont.classList.add("opacity"); // cont add opacity
+    burgerBtnOpen.classList.add("hidden"); // display none
+  }, 40);
+}
+
+export function initBurger() {
+  closeBurger();
+  burgerBtnOpen.addEventListener("click", openBurger);
+  burgerBtnClose.addEventListener("click", closeBurger);
+}

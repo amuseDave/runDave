@@ -140,7 +140,7 @@ input[type="number"] {
 }
 .title {
   font-weight: 400;
-  color: rgb(230, 255, 241);
+  color: #e6fff1;
   text-shadow: 0px 0px 2px black;
   font-size: 3rem;
 }
@@ -279,11 +279,14 @@ input[type="number"] {
 .burger-bttn,
 .burger-bttn-close {
   display: none;
-  z-index: 1000;
+  z-index: 450;
   position: absolute;
   top: 40px;
   right: 20px;
   cursor: pointer;
+}
+.burger-bttn-close {
+  z-index: 1000;
 }
 
 @media (max-width: 1000px) {
@@ -323,4 +326,54 @@ input[type="number"] {
 }
 .stat-loc p {
   color: white;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+}
+.spinner {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 600px) {
+  .run-info {
+    width: 330px !important;
+  }
+  .stat h4 {
+    font-size: 14px;
+  }
+  .stat p {
+    font-size: 14px;
+  }
+  .stat-loc h4,
+  .stat-loc p {
+    font-size: 13px;
+  }
+  .run-stats {
+    padding-top: 15px;
+  }
+}
+.del-bttn {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 13px;
+  right: -8px;
+  text-align: center;
+  width: 40px;
+  font-size: 14px;
+  color: #ff0000;
 }
