@@ -42,7 +42,7 @@ let map,
   popup,
   popup1,
   lineD;
-let numOfRuns = runs.length;
+let numOfRuns = +runs.at(-1)?.id + 1 || runs.length;
 let allSavedCoords = [];
 
 function createIcon(state) {
@@ -96,8 +96,6 @@ function resetLines() {
   coords = [];
   distance = 0;
   currentCord = 0;
-  numOfRuns++;
-  setLocalStorage();
 }
 
 function generatePopUpHTML(
@@ -203,7 +201,8 @@ async function addRun() {
   });
 
   resetLines();
-
+  numOfRuns = +runs.at(-1).id + 1;
+  setLocalStorage();
   overlay.openBurger();
 }
 function calculateDistance() {
