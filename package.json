@@ -1,0 +1,12 @@
+{
+  "name": "rundave",
+  "version": "1.0.0",
+  "description": "Display personal running workouts with amazing features",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

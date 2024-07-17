@@ -377,3 +377,11 @@ input[type="number"] {
   font-size: 14px;
   color: #ff0000;
 }
+
+.copy-right {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  color: white;
+  transform: translateX(-50%);
+}
