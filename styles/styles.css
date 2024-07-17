@@ -229,18 +229,19 @@ input[type="number"] {
 }
 
 .run-stats {
+  position: relative;
   opacity: 0;
-  background-color: #a6e7c3;
-  border: 2px solid black;
+  background-color: #1b3125;
+  border: 0px solid black;
   border-radius: 8px;
   width: 90%;
   padding: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin: 10px auto;
   font-family: "Arial", sans-serif;
   font-size: 16px;
   transition: 0.2s all ease-in-out !important;
   cursor: pointer;
+  padding-top: 25px;
 }
 
 .run-stats .stat-row {
@@ -266,14 +267,14 @@ input[type="number"] {
 .run-stats h4 {
   margin: 0;
   font-size: 16px;
-  color: #333;
+  color: #ffffff;
   font-weight: bold;
 }
 
 .run-stats p {
   margin: 0;
   font-size: 16px;
-  color: #292929;
+  color: #cacaca;
 }
 .burger-bttn,
 .burger-bttn-close {
@@ -312,4 +313,14 @@ input[type="number"] {
     opacity: 1;
     transition: all 0.3s ease-in-out;
   }
+}
+
+.stat-loc {
+  display: flex;
+  position: absolute;
+  top: 0;
+  flex-direction: row !important;
+}
+.stat-loc p {
+  color: white;
 }

@@ -5,7 +5,17 @@ const mainCont = document.querySelector(".run-info");
 const burgerBtnOpen = document.querySelector(".burger-bttn");
 const burgerBtnClose = document.querySelector(".burger-bttn-close");
 
-function closeBurger() {
+export function closeBurger(marker, popup, marker1, popup1, lineD) {
+  if (marker && popup) {
+    marker.remove();
+    popup.remove();
+  }
+  if (popup1 && marker1) {
+    marker1.remove();
+    popup1.remove();
+    lineD.remove();
+  }
+
   mainCont.classList.remove("opacity");
   burgerBtnOpen.classList.remove("hidden");
   burgerBtnClose.classList.remove("opacity");

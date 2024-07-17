@@ -1,6 +1,7 @@
 import * as mapFunctions from "./mapView.js";
 import * as overlay from "./overlay.js";
 import { Run } from "./RunClass.js";
+import * as API from "./API.js";
 
 const colorPalette = [
   "#1E90FF", // Dodger Blue
@@ -40,7 +41,7 @@ let map,
   marker1,
   popup,
   popup1,
-  line;
+  lineD;
 let numOfRuns = runs.length;
 let allSavedCoords = [];
 
@@ -121,13 +122,14 @@ function generatePopUpHTML(
 
 function createRun() {
   if (coords.length === 1) {
-    addPopUp(coords[0], generatePopUpHTML(undefined, numOfRuns));
-    addMarker(coords[0], "start");
+    overlay.closeBurger();
+    popup1 = addPopUp(coords[0], generatePopUpHTML(undefined, numOfRuns));
+    marker1 = addMarker(coords[0], "start");
   }
 
   if (coords.length > 1) {
     calculateDistance();
-    line = addLine(coords, numOfRuns);
+    lineD = addLine(coords, numOfRuns);
     popup = addPopUp(
       coords[coords.length - 1],
       generatePopUpHTML("finish", numOfRuns, true, distance),
@@ -154,7 +156,12 @@ function addPopUp(crd, content = "", close = false) {
     content: `${content}`,
   }).openOn(map);
 }
-function addRun() {
+
+async function addRun() {
+  const weather = await API.getWeather(coords);
+  // const location = await API.getLocatioName(coords);
+  // console.log(weather);
+  console.log(weather);
   runs.push(
     new Run(
       new Date(),
@@ -162,22 +169,41 @@ function addRun() {
       coords,
       +distance,
       generateColor(numOfRuns),
-      numOfRuns
+      numOfRuns,
+      weather,
+      location
     )
   );
 
   marker.remove();
   popup.remove();
-  // line.remove();
-  // allSavedCoords = [];
-  // displayAllSavedRuns();
-  console.log(allSavedCoords);
-  addPopUp(
+  marker1.remove();
+  popup1.remove();
+  lineD.remove();
+
+  const popupStart = addPopUp(
+    coords[0],
+    generatePopUpHTML(undefined, numOfRuns)
+  );
+  const markerStart = addMarker(coords[0], "start");
+  const popupFinish = addPopUp(
     coords[coords.length - 1],
     generatePopUpHTML("finish", numOfRuns, false, distance)
   );
-  addMarker(coords[coords.length - 1], "finish");
+  const markerFinish = addMarker(coords[coords.length - 1], "finish");
+  const line = addLine(coords, numOfRuns);
+
+  allSavedCoords.push({
+    markerStart,
+    markerFinish,
+    popupStart,
+    popupFinish,
+    line,
+    id: +numOfRuns,
+  });
+
   resetLines();
+
   overlay.openBurger();
 }
 function calculateDistance() {
@@ -226,10 +252,16 @@ if (tutorial) {
   overlay.init();
   overlay.add();
 }
-
-function generateAll(runs) {
+function generateRunHTML(runs) {
   runs.forEach((run) => {
     run.generateHTML(document.querySelector(".run-info2"));
+  });
+}
+function saveCordinates() {}
+
+function generateRunMarkers(runs) {
+  allSavedCoords = [];
+  runs.forEach((run) => {
     const markerStart = addMarker(run.coords[0], "start");
     const markerFinish = addMarker(run.coords[run.coords.length - 1], "finish");
     const popupStart = addPopUp(
@@ -252,9 +284,9 @@ function generateAll(runs) {
   });
 }
 function displayAllSavedRuns() {
-  allSavedCoords = [];
   if (runs.length > 0) {
-    generateAll(runs);
+    generateRunHTML(runs);
+    generateRunMarkers(runs);
   }
 }
 
@@ -269,7 +301,7 @@ function displayDeleteAllDrawings() {
   allSavedCoords = [];
 }
 // clearLocalStorage();
-
+// FIX Displaying one run
 overlay.initBurger();
 
 const containerStats = document.querySelector(".run-info2");
@@ -279,8 +311,12 @@ containerStats.addEventListener("click", (e) => {
   if (!runStat) return;
   const run = [runs.find((run) => +run.id === +runStat.dataset.runId)];
   displayDeleteAllDrawings();
-  generateAll(run);
+  generateRunMarkers(run);
   const line = allSavedCoords.find((run) => +run.id === +runStat.dataset.runId);
-
-  map.flyTo([line.markerStart._latlng.lat, line.markerStart._latlng.lng], 15);
+  overlay.closeBurger();
+  map.flyTo(
+    [line.markerStart._latlng.lat, line.markerStart._latlng.lng],
+    +run[0].distance > 5 ? 13 : 14
+  );
 });
+clearLocalStorage();

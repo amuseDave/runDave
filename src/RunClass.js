@@ -1,5 +1,5 @@
 export class Run {
-  constructor(date, time, coords, distance, color, id) {
+  constructor(date, time, coords, distance, color, id, weather, location) {
     this.dateMS = date.getTime();
     this.time = time;
     this.distance = distance;
@@ -7,7 +7,8 @@ export class Run {
     this.color = color;
     this.id = id;
     this.speed = this.calculateSpeed(distance, time);
-    this.location;
+    this.weather = weather;
+    this.location = location;
     this.generateHTML(document.querySelector(".run-info2"));
   }
 
@@ -24,12 +25,12 @@ export class Run {
     }).format(date);
     return formattedDate;
   }
-  generateHTML(el) {
+  async generateHTML(el) {
     const runHTML = `  <div data-run-id="${
       this.id
-    }" class="run-stats run-stat-${this.id}" style=' box-shadow: 0px 0px 10px ${
+    }" class="run-stats run-stat-${this.id}" style='box-shadow: 0px 0px 10px ${
       this.color
-    }; ${this.color}'>
+    };'>
         <div class="stat-row">
           <div class="stat">
             <h4>📅 Date:</h4>
@@ -40,8 +41,14 @@ export class Run {
             <p>${this.id + 1}</p>
           </div>
           <div class="stat">
-            <h4>🗺️ Location:</h4>
-            <p>Central Park</p>
+            <h4>☁️Weather:</h4>
+            <p>🌡️${this.weather.temperature}°C, ${
+      this.weather.weatherDescription
+    }</p>
+          </div>
+          <div class="stat-loc">
+            <h4>🗺️</h4>
+            <p>${this.location}</p>
           </div>
         </div>
         <div class="stat-row">
