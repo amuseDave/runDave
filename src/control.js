@@ -51,7 +51,8 @@ let map,
   popup,
   popup1,
   lineD,
-  loading;
+  loading,
+  edit;
 let displayed = 1000;
 let numOfRuns = +runs.at(-1)?.id + 1 || runs.length;
 let allSavedCoords = [];
@@ -492,6 +493,7 @@ function submitEditRun(okEditBttn) {
   inputElTime.value = "";
   undisplayEdits();
   setLocalStorage();
+  edit = false;
 }
 
 function editRun(editBttn) {
@@ -506,6 +508,7 @@ function editRun(editBttn) {
   inputElTime.classList.remove("hidden");
   okEditBttn.classList.remove("hidden");
   inputElTime.focus();
+  edit = true;
 }
 
 function undisplayEdits() {
@@ -522,15 +525,23 @@ function undisplayEdits() {
 function goToRun(runStat) {
   if (loading) return;
   if (+runStat.dataset.runId !== +displayed) {
+    edit = false;
     undisplayEdits();
   }
+  const inputElTime = document.querySelector(
+    `.edit-input-${+runStat.dataset.runId}`
+  );
+  inputElTime.focus();
   removeCurrentPopsMarks();
   resetLines();
   const run = [runs.find((run) => +run.id === +runStat.dataset.runId)];
   displayDeleteAllDrawings();
   generateRunMarkers(run);
   const line = allSavedCoords.find((run) => +run.id === +runStat.dataset.runId);
-  closeBurger();
+  if (!edit) {
+    closeBurger();
+  }
+
   map.flyTo(
     [line.markerStart._latlng.lat, line.markerStart._latlng.lng],
     +run[0].distance > 5 ? 13 : 14
