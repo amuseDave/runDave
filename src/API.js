@@ -83,6 +83,8 @@ export async function getLocatioName(crd) {
   );
   const data = await res.json();
   loading.remove();
-  const loc = `${data.address.country}, ${data.address.city || ""} `;
+  const loc = `${data.address.country}${
+    data.address.city ? ", " + data.address.city : ""
+  } `;
   return loc;
 }
