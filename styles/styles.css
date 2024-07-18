@@ -15,7 +15,7 @@ body {
 #map {
   display: flex;
   flex: 1;
-  max-width: 1700px;
+  max-width: 2000px;
   height: 95svh;
   margin: 15px 15px;
   margin-left: 0;
@@ -105,19 +105,25 @@ input[type="number"] {
   padding-top: 100px;
   padding-bottom: 40px;
   position: relative;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   height: 95svh;
   margin: 20px 0px;
   margin-left: 10px;
-  max-width: 400px;
   /* color: #031f0f; */
   background-color: rgb(109, 141, 121);
   box-shadow: 0px 0px 10px rgb(0, 0, 0);
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
   flex: 1;
+  max-width: 0px;
+  overflow: hidden;
+  transition: 0.5s all ease-in-out;
+}
+.expand {
+  max-width: 400px;
 }
 
 .title-container {
@@ -157,7 +163,7 @@ input[type="number"] {
   background-color: rgba(255, 255, 255, 0.041);
   filter: blur(2px);
   z-index: 500;
-  transition: 0.5s all ease-in-out !important;
+  transition: 0.3s all ease-in-out !important;
 }
 
 .info {
@@ -286,13 +292,13 @@ input[type="number"] {
   cursor: pointer;
 }
 .burger-bttn-close {
-  z-index: 1000;
+  z-index: 1200;
 }
 
 @media (max-width: 1000px) {
   .run-info {
     position: absolute;
-    z-index: 800;
+    z-index: 1100;
     width: 400px !important;
     right: 10px;
     opacity: 0;
@@ -381,8 +387,41 @@ input[type="number"] {
 
 .copy-right {
   position: absolute;
-  bottom: 0;
+  bottom: 0px;
   left: 50%;
   color: white;
+  width: 200px;
   transform: translateX(-50%);
+}
+
+.guide-mark {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  bottom: 5px;
+  left: 15px;
+
+  z-index: 1000;
+  padding-bottom: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid black;
+}
+
+.sort-runs {
+  position: absolute;
+  display: flex;
+  color: #e6fff1;
+  /* text-shadow: 0px 0px 2px #e6fff1; */
+  top: 80px;
+  left: 20px;
+}
+.sort-runs button {
+  width: 40px;
+  border: 1px solid #e6fff1;
+  cursor: pointer;
+  margin-left: 10px;
+  background-color: #4b6d5c;
 }

@@ -10,6 +10,7 @@ import finishRunImage from "../images/finish-run.svg";
 const mainCont = document.querySelector(".run-info");
 const burgerBtnOpen = document.querySelector(".burger-bttn");
 const burgerBtnClose = document.querySelector(".burger-bttn-close");
+const openGuideBttn = document.querySelector(".guide-mark");
 const colorPalette = [
   "#1E90FF", // Dodger Blue
   "#283c41", // Black
@@ -69,14 +70,31 @@ function setLocalStorage() {
   localStorage.setItem("runDave2024", JSON.stringify(runs));
 }
 
-// Click on any map points
-// genera
+if (runs.length > 0) {
+  mainCont.classList.add("expand");
+}
+if (runs.length === 0) {
+  burgerBtnOpen.classList.add("hidden");
+}
+
 function activateSubmit() {
   if (+inputMin.value < 10) {
     alert("Minimum running time is > 10");
     return;
   }
-  addRun();
+  const mainContWidth = +getComputedStyle(mainCont).width.slice(0, 3);
+
+  if (mainCont.classList.contains("expand") || mainContWidth > 0) {
+    burgerBtnOpen.classList.remove("hidden");
+    mainCont.classList.add("expand");
+    addRun();
+  } else {
+    burgerBtnOpen.classList.remove("hidden");
+    mainCont.classList.add("expand");
+    setTimeout(() => {
+      addRun();
+    }, 400);
+  }
 }
 function renderSubmit() {
   if (okBttn && inputMin) {
@@ -127,12 +145,18 @@ function createRun() {
   if (loading) return;
   if (coords.length === 1) {
     closeBurger();
+    if (runs.length === 0) {
+      burgerBtnOpen.classList.add("hidden");
+    }
     popup1 = addPopUp(coords[0], generatePopUpHTML(undefined, numOfRuns));
     marker1 = addMarker(coords[0], "start");
   }
 
   if (coords.length > 1) {
     closeBurger();
+    if (runs.length === 0) {
+      burgerBtnOpen.classList.add("hidden");
+    }
     calculateDistance();
     if (lineD) {
       lineD.remove();
@@ -257,17 +281,23 @@ function generateColor(id) {
 ///////////////////////////////////////
 ////// MAP SETUP ////////////
 //////////////////////////////////////
-navigator.geolocation.getCurrentPosition(
-  (position) =>
-    mapInitialization([position.coords.latitude, position.coords.longitude]),
-  () => mapInitialization([51.505, -0.09])
-);
+if (runs.length > 0) {
+  console.log(runs[0].coords[0]);
+  mapInitialization(runs[0].coords[0]);
+} else {
+  navigator.geolocation.getCurrentPosition(
+    (position) =>
+      mapInitialization([position.coords.latitude, position.coords.longitude]),
+    () => mapInitialization([51.505, -0.09])
+  );
+}
 function mapInitialization(startCoord) {
   map = mapFunctions.generateMap(startCoord);
   mapFunctions.displayMap();
   displayAllSavedRuns();
   map.on("click", function (ev) {
     if (loading) return;
+
     coords.push([ev.latlng.lat, ev.latlng.lng]);
     createRun();
   });
@@ -279,14 +309,47 @@ if (tutorial) {
   overlay.init();
   overlay.add();
 }
+if (!tutorial) {
+  overlay.init();
+  overlay.remove();
+}
+openGuideBttn.addEventListener("click", () => {
+  overlay.openOverlay();
+
+  setTimeout(() => {
+    removeCurrentPopsMarks();
+    resetLines();
+  }, 1);
+});
+
 function generateRunHTML(runs) {
-  runs.forEach((run) => {
-    run.generateHTML(document.querySelector(".run-info2"));
-  });
+  if (mainCont.classList.contains("expand")) {
+    setTimeout(() => {
+      runs.forEach((run) => {
+        mainCont.insertAdjacentHTML(
+          "beforeend",
+          `<div class="loading"> <i class="fa-solid fa-spinner fa-3x spinner" style="color: #e6fff1;"></i> </div>`
+        );
+      });
+    }, 200);
+    setTimeout(() => {
+      document.querySelectorAll(".loading").forEach((el) => {
+        el.remove();
+      });
+      runs.forEach((run) => {
+        run.generateHTML(document.querySelector(".run-info2"));
+      });
+    }, 500);
+  }
 }
 
 function generateRunMarkers(runs) {
-  if (runs.length === 0) return;
+  if (runs.length === 0) {
+    mainCont.classList.remove("expand");
+    burgerBtnOpen.classList.add("hidden");
+    burgerBtnClose.classList.add("hidden");
+    return;
+  }
   allSavedCoords = [];
   runs.forEach((run) => {
     const markerStart = addMarker(run.coords[0], "start");
@@ -328,7 +391,7 @@ function displayDeleteAllDrawings() {
   allSavedCoords = [];
 }
 // clearLocalStorage();
-// FIX Displaying one run
+
 initBurger();
 
 const containerStats = document.querySelector(".run-info2");
@@ -347,6 +410,7 @@ function deleteRun(delBttn) {
     allSavedCoords[savedCoordsIndex].line.remove();
     allSavedCoords.splice(savedCoordsIndex, 1);
   }
+
   runs.splice(runIndex, 1);
   document.querySelector(`.run-stat-${id}`).remove();
   numOfRuns = +runs.at(-1)?.id + 1 || runs.length;
@@ -414,7 +478,7 @@ function openBurger2() {
   }, 40);
 }
 function initBurger() {
-  closeBurger();
+  // closeBurger();
   burgerBtnOpen.addEventListener("click", openBurger);
   burgerBtnClose.addEventListener("click", closeBurger);
 }
