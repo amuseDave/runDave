@@ -344,6 +344,7 @@ openGuideBttn.addEventListener("click", () => {
 
 function generateRunHTML(runs) {
   if (mainCont.classList.contains("expand")) {
+    document.querySelector(".run-info2").innerHTML = "";
     setTimeout(() => {
       runs.forEach((run) => {
         mainCont.insertAdjacentHTML(
@@ -359,6 +360,7 @@ function generateRunHTML(runs) {
       runs.forEach((run) => {
         run.generateHTML(document.querySelector(".run-info2"));
       });
+      loading = false;
     }, 500);
   }
 }
@@ -509,29 +511,33 @@ let speedSorted, dateSorted, timeSorted, distanceSorted;
 sortRunsCont.addEventListener("click", (e) => {
   const sortType = e.target.closest(".btn");
   if (!sortType) return;
+  if (loading) return;
   if (sortType.classList.contains("speed")) {
+    loading = true;
     sortBySpeed();
   }
   if (sortType.classList.contains("distance")) {
+    loading = true;
     sortByDistance();
   }
   if (sortType.classList.contains("time")) {
+    loading = true;
     sortByTime();
   }
   if (sortType.classList.contains("date")) {
+    loading = true;
     sortByDate();
   }
 });
 
 function sortByDistance() {
   if (distanceSorted) {
-    document.querySelector(".run-info2").innerHTML = "";
     const sortedDistance = [...runs].sort((a, b) => a.distance - b.distance);
     generateRunHTML(sortedDistance);
     distanceSorted = false;
     return;
   }
-  document.querySelector(".run-info2").innerHTML = "";
+
   const sortedDistance = [...runs].sort((a, b) => b.distance - a.distance);
   generateRunHTML(sortedDistance);
   speedSorted = false;
@@ -541,13 +547,12 @@ function sortByDistance() {
 }
 function sortBySpeed() {
   if (speedSorted) {
-    document.querySelector(".run-info2").innerHTML = "";
     const sortedSpeed = [...runs].sort((a, b) => b.speed - a.speed);
     generateRunHTML(sortedSpeed);
     speedSorted = false;
     return;
   }
-  document.querySelector(".run-info2").innerHTML = "";
+
   const sortedSpeed = [...runs].sort((a, b) => a.speed - b.speed);
   generateRunHTML(sortedSpeed);
   speedSorted = true;
@@ -557,7 +562,6 @@ function sortBySpeed() {
 }
 function sortByTime() {
   if (timeSorted) {
-    document.querySelector(".run-info2").innerHTML = "";
     const sortedTime = [...runs].sort(
       (a, b) =>
         +b.time.slice(0, b.time.indexOf(" ")) -
@@ -567,7 +571,7 @@ function sortByTime() {
     timeSorted = false;
     return;
   }
-  document.querySelector(".run-info2").innerHTML = "";
+
   const sortedTime = [...runs].sort(
     (a, b) =>
       +a.time.slice(0, a.time.indexOf(" ")) -
@@ -581,13 +585,12 @@ function sortByTime() {
 }
 function sortByDate() {
   if (dateSorted) {
-    document.querySelector(".run-info2").innerHTML = "";
     const sortedDate = [...runs].sort((a, b) => b.dateMS - a.dateMS);
     generateRunHTML(sortedDate);
     dateSorted = false;
     return;
   }
-  document.querySelector(".run-info2").innerHTML = "";
+
   const sortedDate = [...runs].sort((a, b) => a.dateMS - b.dateMS);
   generateRunHTML(sortedDate);
   speedSorted = false;
