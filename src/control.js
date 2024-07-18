@@ -11,6 +11,7 @@ const mainCont = document.querySelector(".run-info");
 const burgerBtnOpen = document.querySelector(".burger-bttn");
 const burgerBtnClose = document.querySelector(".burger-bttn-close");
 const openGuideBttn = document.querySelector(".guide-mark");
+const sortRunsCont = document.querySelector(".sort-runs");
 const colorPalette = [
   "#1E90FF", // Dodger Blue
   "#283c41", // Black
@@ -72,9 +73,28 @@ function setLocalStorage() {
 
 if (runs.length > 0) {
   mainCont.classList.add("expand");
+  closeBurger();
 }
 if (runs.length === 0) {
   burgerBtnOpen.classList.add("hidden");
+}
+displaySortMenu();
+
+function displaySortMenu() {
+  if (runs.length > 1) {
+    sortRunsCont.classList.remove("hidden");
+    setTimeout(() => {
+      sortRunsCont.classList.add("opacity-sort");
+    }, 500);
+  }
+}
+function removeSortMenu() {
+  if (runs.length < 2) {
+    sortRunsCont.classList.remove("opacity-sort");
+    setTimeout(() => {
+      sortRunsCont.classList.add("hidden");
+    }, 200);
+  }
 }
 
 function activateSubmit() {
@@ -226,7 +246,7 @@ async function addRun() {
 
   runs.push(
     new Run(
-      new Date(),
+      new Date().getTime(),
       +inputMin.value,
       coords,
       +distance,
@@ -236,6 +256,7 @@ async function addRun() {
       location
     )
   );
+  displaySortMenu();
 
   allSavedCoords.push({
     markerStart,
@@ -282,7 +303,6 @@ function generateColor(id) {
 ////// MAP SETUP ////////////
 //////////////////////////////////////
 if (runs.length > 0) {
-  console.log(runs[0].coords[0]);
   mapInitialization(runs[0].coords[0]);
 } else {
   navigator.geolocation.getCurrentPosition(
@@ -412,6 +432,7 @@ function deleteRun(delBttn) {
   }
 
   runs.splice(runIndex, 1);
+  removeSortMenu();
   document.querySelector(`.run-stat-${id}`).remove();
   numOfRuns = +runs.at(-1)?.id + 1 || runs.length;
   setLocalStorage();
@@ -482,3 +503,97 @@ function initBurger() {
   burgerBtnOpen.addEventListener("click", openBurger);
   burgerBtnClose.addEventListener("click", closeBurger);
 }
+
+let speedSorted, dateSorted, timeSorted, distanceSorted;
+
+sortRunsCont.addEventListener("click", (e) => {
+  const sortType = e.target.closest(".btn");
+  if (!sortType) return;
+  if (sortType.classList.contains("speed")) {
+    sortBySpeed();
+  }
+  if (sortType.classList.contains("distance")) {
+    sortByDistance();
+  }
+  if (sortType.classList.contains("time")) {
+    sortByTime();
+  }
+  if (sortType.classList.contains("date")) {
+    sortByDate();
+  }
+});
+
+function sortByDistance() {
+  if (distanceSorted) {
+    document.querySelector(".run-info2").innerHTML = "";
+    const sortedDistance = [...runs].sort((a, b) => a.distance - b.distance);
+    generateRunHTML(sortedDistance);
+    distanceSorted = false;
+    return;
+  }
+  document.querySelector(".run-info2").innerHTML = "";
+  const sortedDistance = [...runs].sort((a, b) => b.distance - a.distance);
+  generateRunHTML(sortedDistance);
+  speedSorted = false;
+  dateSorted = false;
+  timeSorted = false;
+  distanceSorted = true;
+}
+function sortBySpeed() {
+  if (speedSorted) {
+    document.querySelector(".run-info2").innerHTML = "";
+    const sortedSpeed = [...runs].sort((a, b) => b.speed - a.speed);
+    generateRunHTML(sortedSpeed);
+    speedSorted = false;
+    return;
+  }
+  document.querySelector(".run-info2").innerHTML = "";
+  const sortedSpeed = [...runs].sort((a, b) => a.speed - b.speed);
+  generateRunHTML(sortedSpeed);
+  speedSorted = true;
+  dateSorted = false;
+  timeSorted = false;
+  distanceSorted = false;
+}
+function sortByTime() {
+  if (timeSorted) {
+    document.querySelector(".run-info2").innerHTML = "";
+    const sortedTime = [...runs].sort(
+      (a, b) =>
+        +b.time.slice(0, b.time.indexOf(" ")) -
+        +a.time.slice(0, a.time.indexOf(" "))
+    );
+    generateRunHTML(sortedTime);
+    timeSorted = false;
+    return;
+  }
+  document.querySelector(".run-info2").innerHTML = "";
+  const sortedTime = [...runs].sort(
+    (a, b) =>
+      +a.time.slice(0, a.time.indexOf(" ")) -
+      +b.time.slice(0, b.time.indexOf(" "))
+  );
+  generateRunHTML(sortedTime);
+  speedSorted = false;
+  dateSorted = false;
+  timeSorted = true;
+  distanceSorted = false;
+}
+function sortByDate() {
+  if (dateSorted) {
+    document.querySelector(".run-info2").innerHTML = "";
+    const sortedDate = [...runs].sort((a, b) => b.dateMS - a.dateMS);
+    generateRunHTML(sortedDate);
+    dateSorted = false;
+    return;
+  }
+  document.querySelector(".run-info2").innerHTML = "";
+  const sortedDate = [...runs].sort((a, b) => a.dateMS - b.dateMS);
+  generateRunHTML(sortedDate);
+  speedSorted = false;
+  dateSorted = true;
+  timeSorted = false;
+  distanceSorted = false;
+}
+
+runs.forEach((run) => console.log(run.dateMS));

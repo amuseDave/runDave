@@ -1,6 +1,6 @@
 export class Run {
   constructor(date, time, coords, distance, color, id, weather, location) {
-    this.dateMS = date.getTime();
+    this.dateMS = date;
     this.time = `${+time} Minutes`;
     this.distance = distance;
     this.coords = coords;
@@ -33,7 +33,7 @@ export class Run {
     };'>
     <div data-del-id="${
       this.id
-    }" class=del-bttn><i class="fa-solid fa-xmark fa-xl" style="color: #ff0000"></i></div>
+    }" class=del-bttn><i class="fa-solid fa-xmark fa-xl run-close-icon"></i></div>
         <div class="stat-row">
           <div class="stat">
             <h4>📅 Date:</h4>
@@ -84,12 +84,16 @@ export class Run {
   }
   getFriendlyDateDifference() {
     const now = new Date();
+    const runDate = new Date(this.dateMS);
     const diffTime = Math.abs(now - this.dateMS);
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const hours = runDate.getHours();
+    const minutes = runDate.getMinutes().toString().padStart(2, "0");
+
     if (diffDays === 0) {
-      return "Today";
+      return `Today at ${hours}:${minutes}`;
     } else if (diffDays === 1) {
-      return "Yesterday";
+      return `Yesterday at ${hours}:${minutes}`;
     } else if (diffDays < 7) {
       return `${diffDays} days ago`;
     } else {
