@@ -418,4 +418,3 @@ function initBurger() {
   burgerBtnOpen.addEventListener("click", openBurger);
   burgerBtnClose.addEventListener("click", closeBurger);
 }
-clearLocalStorage();
