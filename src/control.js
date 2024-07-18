@@ -51,7 +51,8 @@ let map,
   popup,
   popup1,
   lineD,
-  loading;
+  loading,
+  displayed;
 let numOfRuns = +runs.at(-1)?.id + 1 || runs.length;
 let allSavedCoords = [];
 
@@ -98,8 +99,8 @@ function removeSortMenu() {
 }
 
 function activateSubmit() {
-  if (+inputMin.value < 10) {
-    alert("Minimum running time is > 10");
+  if (+inputMin.value < 10 || +inputMin.value > 999) {
+    alert(`Invalid input: value has to be > 10, and can't be above 1000`);
     return;
   }
   const mainContWidth = +getComputedStyle(mainCont).width.slice(0, 3);
@@ -317,7 +318,7 @@ function mapInitialization(startCoord) {
   displayAllSavedRuns();
   map.on("click", function (ev) {
     if (loading) return;
-
+    undisplayEdits();
     coords.push([ev.latlng.lat, ev.latlng.lng]);
     createRun();
   });
@@ -444,18 +445,80 @@ function deleteRun(delBttn) {
 
 containerStats.addEventListener("click", (e) => {
   const delBttn = e.target.closest(".del-bttn");
+  const editBttn = e.target.closest(".edit-bttn");
   if (delBttn) {
     deleteRun(delBttn);
     return;
+  }
+
+  if (editBttn) {
+    editRun(editBttn);
   }
 
   const runStat = e.target.closest(".run-stats");
   if (!runStat) return;
   goToRun(runStat);
 });
+containerStats.addEventListener("click", (e) => {
+  const okEditBttn = e.target.closest(".ok-bttn");
+  if (!okEditBttn) return;
+  submitEditRun(okEditBttn);
+});
+function submitEditRun(okEditBttn) {
+  const okId = okEditBttn.dataset.okId;
+  const pElTime = document.querySelector(`.p-time-${+okId}`);
+  const inputElTime = document.querySelector(`.edit-input-${+okId}`);
+  const speedEditEl = document.querySelector(`.speed-edit-${+okId}`);
 
+  if (+inputElTime.value < 10) {
+    alert(`Invalid input: value has to be > 10, and can't be above 1000`);
+    inputElTime.focus();
+    return;
+  }
+  const minutes = +inputElTime.value;
+  const runIndex = runs.findIndex((run) => +run.id === +okId);
+  const distance = +runs[runIndex].distance;
+  const speed = +(minutes / distance).toFixed(2);
+
+  runs[runIndex].time = `${minutes} Minutes`;
+  runs[runIndex].speed = speed;
+  console.log(`Finish:`, +inputElTime.value);
+  pElTime.textContent = `${minutes} Minutes`;
+  speedEditEl.textContent = `${speed} min/km`;
+  inputElTime.value = "";
+  undisplayEdits();
+  setLocalStorage();
+}
+
+function editRun(editBttn) {
+  undisplayEdits();
+  const editId = editBttn.dataset.editId;
+  const pElTime = document.querySelector(`.p-time-${+editId}`);
+  const inputElTime = document.querySelector(`.edit-input-${+editId}`);
+  const okEditBttn = document.querySelector(`.ok-bttn-${+editId}`);
+
+  setTimeout(() => {
+    pElTime.classList.add("hidden");
+    inputElTime.classList.remove("hidden");
+    okEditBttn.classList.remove("hidden");
+    inputElTime.focus();
+  }, 50);
+}
+
+function undisplayEdits() {
+  document
+    .querySelectorAll(".p-time")
+    .forEach((el) => el.classList.remove("hidden"));
+  document
+    .querySelectorAll(".edit-input")
+    .forEach((el) => el.classList.add("hidden"));
+  document
+    .querySelectorAll(`.ok-bttn`)
+    .forEach((el) => el.classList.add("hidden"));
+}
 function goToRun(runStat) {
   if (loading) return;
+
   removeCurrentPopsMarks();
   resetLines();
   const run = [runs.find((run) => +run.id === +runStat.dataset.runId)];
@@ -598,5 +661,3 @@ function sortByDate() {
   timeSorted = false;
   distanceSorted = false;
 }
-
-runs.forEach((run) => console.log(run.dateMS));

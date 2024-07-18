@@ -33,7 +33,10 @@ export class Run {
     };'>
     <div data-del-id="${
       this.id
-    }" class=del-bttn><i class="fa-solid fa-xmark fa-xl run-close-icon"></i></div>
+    }" class="del-bttn"><i class="fa-solid fa-xmark fa-xl run-close-icon"></i></div>
+    <div class="edit-bttn" data-edit-id="${
+      this.id
+    }"><i class="edit fa-solid fa-pen-to-square"></i> </div>
         <div class="stat-row">
           <div class="stat">
             <h4>📅 Date:</h4>
@@ -57,11 +60,20 @@ export class Run {
         <div class="stat-row">
           <div class="stat">
             <h4>⏳ Time:</h4>
-            <p>${this.time}</p>
+            <p class="p-time p-time-${this.id}">${this.time}</p>
+            <div class="edit-cont">
+              <input placeholder="Minutes" class="edit-input edit-input-${
+                this.id
+              } hidden" type="number">
+              <div data-ok-id="${this.id}" class="hidden ok-bttn ok-bttn-${
+      this.id
+    }"><i class="fa-solid fa-arrow-right fa-md"></i></div>
+              
+            </div>
           </div>
           <div class="stat">
             <h4>⚡ Speed:</h4>
-            <p>${this.speed} min/km</p>
+            <p class="speed-edit-${this.id}">${this.speed} min/km</p>
           </div>
           <div class="stat">
             <h4>🛣️ Distance:</h4>
