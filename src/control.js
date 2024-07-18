@@ -367,7 +367,7 @@ function generateRunHTML(runs) {
         run.generateHTML(document.querySelector(".run-info2"));
       });
       loading = false;
-    }, 500);
+    }, 400);
   }
 }
 
@@ -426,6 +426,8 @@ const containerStats = document.querySelector(".run-info2");
 
 function deleteRun(delBttn) {
   if (loading) return;
+  removeCurrentPopsMarks();
+  resetLines();
   const id = +delBttn.dataset.delId;
   const runIndex = runs.findIndex((run) => +run.id === id);
   const savedCoordsIndex = allSavedCoords.findIndex((crd) => +crd.id === id);
