@@ -130,6 +130,10 @@ function renderSubmit() {
     if (clicked) {
       activateSubmit();
     }
+    if (distance < 2.5) {
+      alert("Run has to be longer than 2.5KM");
+      return;
+    }
     clicked = true;
     inputMin.classList.remove("hidden");
     submitCont.style.transform = `translateX(60%)`;
