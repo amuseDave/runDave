@@ -51,8 +51,8 @@ let map,
   popup,
   popup1,
   lineD,
-  loading,
-  displayed;
+  loading;
+let displayed = 1000;
 let numOfRuns = +runs.at(-1)?.id + 1 || runs.length;
 let allSavedCoords = [];
 
@@ -497,12 +497,11 @@ function editRun(editBttn) {
   const inputElTime = document.querySelector(`.edit-input-${+editId}`);
   const okEditBttn = document.querySelector(`.ok-bttn-${+editId}`);
 
-  setTimeout(() => {
-    pElTime.classList.add("hidden");
-    inputElTime.classList.remove("hidden");
-    okEditBttn.classList.remove("hidden");
-    inputElTime.focus();
-  }, 50);
+  displayed = +editId;
+  pElTime.classList.add("hidden");
+  inputElTime.classList.remove("hidden");
+  okEditBttn.classList.remove("hidden");
+  inputElTime.focus();
 }
 
 function undisplayEdits() {
@@ -518,7 +517,9 @@ function undisplayEdits() {
 }
 function goToRun(runStat) {
   if (loading) return;
-
+  if (+runStat.dataset.runId !== +displayed) {
+    undisplayEdits();
+  }
   removeCurrentPopsMarks();
   resetLines();
   const run = [runs.find((run) => +run.id === +runStat.dataset.runId)];
